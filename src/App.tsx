@@ -1,26 +1,45 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import {
+  BrowserRouter as Router,
+  Navigate,
+  Route,
+  Routes,
+} from 'react-router-dom';
+import RequiredAuth from './components/RequiredAuth';
+import MainLayout from './pages/MainLayout';
+import HomePage from './pages/HomePage';
+import { ROUTES } from './routes';
+import './styles/AppStyle.css';
+import { Provider } from 'react-redux';
+import { store } from './redux/store';
 
-function App() {
+const App = () => {
+  const isAuth = true;
+  
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Provider store={store}>
+      <Router>
+        <Routes>
+          <Route path={'/'} element={<MainLayout />}>
+            <Route index element={<HomePage />} />
+            <Route path='*' element={<Navigate to={'/'} replace />} />
+            {ROUTES.map(({ path, Component, isPrivate }) => (
+              <Route
+                key={path}
+                path={path}
+                element={
+                  <RequiredAuth
+                    isPrivate={isPrivate}
+                    isAuth={isAuth}
+                    children={<Component />}
+                  />
+                }
+              />
+            ))}
+          </Route>
+        </Routes>
+      </Router>
+    </Provider>
   );
-}
+};
 
 export default App;
